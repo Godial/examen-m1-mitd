@@ -1,0 +1,1958 @@
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Examen Théorique — M1 MITD | Automatisation des Données, ETL &amp; Excel BI</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              200: '#c7d2fe',
+              500: '#4f46e5',
+              600: '#4338ca',
+              700: '#3730a3',
+              800: '#312e81',
+              900: '#1e1b4b',
+            },
+            accent: {
+              500: '#0d9488',
+              600: '#0f766e',
+            }
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    /* Styles d'impression et animations discrètes */
+    @media print {
+      .no-print {
+        display: none !important;
+      }
+      body {
+        background: #ffffff !important;
+        color: #0f172a !important;
+      }
+      .print-break-avoid {
+        break-inside: avoid;
+      }
+    }
+
+    .fade-in {
+      animation: fadeIn 0.25s ease-out forwards;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(100, 116, 139, 0.35);
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(100, 116, 139, 0.55);
+    }
+  </style>
+</head>
+
+<body class="min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 antialiased selection:bg-brand-600 selection:text-white">
+  <!-- Conteneur de notifications non-bloquantes -->
+  <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2 max-w-md w-full pointer-events-none px-4 sm:px-0 no-print"></div>
+
+  <!-- Barre supérieure fixe -->
+  <header class="sticky top-0 z-30 border-b border-slate-200/80 dark:border-slate-800/80 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md no-print">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
+      <div class="flex items-center gap-3 min-w-0">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-600 to-accent-600 text-white flex items-center justify-center font-bold text-sm shadow-sm shrink-0">
+          MITD
+        </div>
+        <div class="min-w-0">
+          <div class="flex items-center gap-2">
+            <span class="font-bold text-sm sm:text-base tracking-tight truncate">Examen Théorique — M1 MITD</span>
+            <span class="hidden md:inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-brand-50 text-brand-700 dark:bg-brand-950 dark:text-brand-300 border border-brand-200/70 dark:border-brand-800">
+              20 Questions · 20 Pts
+            </span>
+          </div>
+          <p class="text-xs text-slate-500 dark:text-slate-400 truncate">
+            Automatisation des Données, ETL, Excel, Power Query, TCD, GCD &amp; KPI
+          </p>
+        </div>
+      </div>
+
+      <!-- Chronomètre + accès discret Mode Professeur + thème -->
+      <div class="flex items-center gap-2 sm:gap-3 shrink-0">
+        <div id="header-timer-badge" class="hidden items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm font-mono font-semibold">
+          <svg class="w-4 h-4 text-brand-600 dark:text-brand-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="9"></circle>
+            <polyline points="12 7 12 12 15 15"></polyline>
+          </svg>
+          <span id="timer-display">00:00</span>
+      </div>
+
+      <button
+        type="button"
+        id="btn-toggle-theme"
+          class="p-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/70 text-slate-600 dark:text-slate-300 transition cursor-pointer"
+          aria-label="Basculer le thème clair ou sombre"
+          title="Thème clair / sombre"
+        >
+          <svg id="icon-sun" class="w-4 h-4 hidden dark:block" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="4"></circle>
+            <path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path>
+          </svg>
+          <svg id="icon-moon" class="w-4 h-4 block dark:hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Corps principal -->
+  <main class="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+
+    <!-- ===================================================================== -->
+    <!-- VUE 1 : ACCUEIL, IDENTIFICATION OBLIGATOIRE & ANTI-DOUBLE PASSATION    -->
+    <!-- ===================================================================== -->
+    <section id="view-welcome" class="fade-in space-y-6">
+      <!-- Bannière académique épurée et soignée -->
+      <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-brand-900 to-brand-700 text-white p-6 sm:p-10 shadow-xl border border-brand-800/50">
+        <div class="max-w-3xl relative z-10">
+          <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/10 text-indigo-100 text-xs font-semibold mb-4 border border-white/15 backdrop-blur-sm">
+            <span class="w-2 h-2 rounded-full bg-teal-400"></span>
+            <span>Master 1 — Management Industriel &amp; Transformation Digitale</span>
+          </div>
+          <h1 class="text-2xl sm:text-4xl font-extrabold tracking-tight leading-tight">
+            Examen Théorique — Automatisation &amp; Pilotage des Données
+          </h1>
+          <p class="mt-3 text-sm sm:text-base text-indigo-100/90 leading-relaxed">
+            Évaluation portant sur l’automatisation des données, le processus <strong>ETL</strong>,
+            <strong>Power Query</strong>, les <strong>Tableaux Croisés Dynamiques (TCD)</strong>,
+            les <strong>Graphiques Croisés Dynamiques (GCD)</strong> et les <strong>KPI</strong>.
+          </p>
+
+          <div class="mt-6 grid grid-cols-3 gap-3 text-left max-w-xl">
+            <div class="rounded-2xl bg-white/10 backdrop-blur-sm p-3.5 sm:p-4 border border-white/15">
+              <div class="text-xl sm:text-2xl font-extrabold">20</div>
+              <div class="text-xs text-indigo-100/85 mt-0.5">Questions (20 pts)</div>
+            </div>
+            <div class="rounded-2xl bg-white/10 backdrop-blur-sm p-3.5 sm:p-4 border border-white/15">
+              <div class="text-xl sm:text-2xl font-extrabold">1 passage</div>
+              <div class="text-xs text-indigo-100/85 mt-0.5">Contrôle par CIN</div>
+            </div>
+            <div class="rounded-2xl bg-white/10 backdrop-blur-sm p-3.5 sm:p-4 border border-white/15">
+              <div class="text-xl sm:text-2xl font-extrabold">100%</div>
+              <div class="text-xs text-indigo-100/85 mt-0.5">Réponses exigées</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Formulaire d'identification & Consignes -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <div class="lg:col-span-8 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 sm:p-8 shadow-sm">
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-6 pb-4 border-b border-slate-100 dark:border-slate-800">
+            <div>
+              <h2 class="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white">
+                Identification du Candidat
+              </h2>
+              <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+                Tous les champs marqués d’un astérisque (*) sont obligatoires.
+              </p>
+            </div>
+            <span id="sheet-status-pill" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/70 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+              <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+              Enregistrement actif
+            </span>
+          </div>
+
+          <!-- Bannière de blocage anti-double passation -->
+          <div id="cin-locked-banner" class="hidden mb-6 rounded-2xl border-2 border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/50 p-4 sm:p-5 text-red-900 dark:text-red-200">
+            <div class="flex items-start gap-3">
+              <svg class="w-6 h-6 text-red-600 dark:text-red-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+              </svg>
+              <div class="space-y-1 text-sm">
+                <p class="font-bold text-base">Double passation interdite — CIN déjà enregistré</p>
+                <p id="cin-locked-reason" class="leading-relaxed">
+                  Ce numéro de CIN a déjà effectué ou soumis cet examen. Une seconde tentative est bloquée.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <form id="student-form" class="space-y-4" novalidate>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <!-- CIN -->
+              <div>
+                <label for="input-cin" class="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
+                  CIN <span class="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  id="input-cin"
+                  name="cin"
+                  required
+                  autocomplete="off"
+                  placeholder="Ex. AB123456"
+                  class="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 text-slate-900 dark:text-white uppercase font-mono text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition"
+                />
+                <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                  Identifiant unique vérifié avant le démarrage.
+                </p>
+              </div>
+
+              <!-- Date de naissance -->
+              <div>
+                <label for="input-dob" class="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
+                  Date de naissance <span class="text-red-500">*</span>
+                </label>
+                <input
+                  type="date"
+                  id="input-dob"
+                  name="dob"
+                  required
+                  class="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition"
+                />
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <!-- Nom -->
+              <div>
+                <label for="input-nom" class="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
+                  Nom <span class="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  id="input-nom"
+                  name="nom"
+                  required
+                  placeholder="Ex. EL AMRANI"
+                  class="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition"
+                />
+              </div>
+
+              <!-- Prénom -->
+              <div>
+                <label for="input-prenom" class="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
+                  Prénom <span class="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  id="input-prenom"
+                  name="prenom"
+                  required
+                  placeholder="Ex. Youssef"
+                  class="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition"
+                />
+              </div>
+            </div>
+
+            <!-- Sexe -->
+            <div>
+              <span class="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-2">
+                Sexe <span class="text-red-500">*</span>
+              </span>
+              <div class="grid grid-cols-2 gap-3">
+                <label class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 hover:border-brand-400 cursor-pointer transition">
+                  <input type="radio" name="sexe" value="Masculin" required class="w-4 h-4 text-brand-600 focus:ring-brand-500" />
+                  <span class="text-sm font-medium">Masculin</span>
+                </label>
+                <label class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 hover:border-brand-400 cursor-pointer transition">
+                  <input type="radio" name="sexe" value="Féminin" required class="w-4 h-4 text-brand-600 focus:ring-brand-500" />
+                  <span class="text-sm font-medium">Féminin</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Engagement -->
+            <div class="pt-1">
+              <label class="flex items-start gap-3 p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-700/80 cursor-pointer">
+                <input
+                  type="checkbox"
+                  id="input-pledge"
+                  required
+                  class="mt-0.5 w-4 h-4 rounded text-brand-600 focus:ring-brand-500"
+                />
+                <span class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                  Je certifie l’exactitude de mes informations et j’accepte que <strong>chaque CIN n’ait droit qu’à un seul passage</strong>.
+                </span>
+              </label>
+            </div>
+
+            <div class="pt-2">
+              <button
+                type="submit"
+                id="btn-start-exam"
+                class="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-brand-600 to-accent-600 hover:from-brand-700 hover:to-accent-600 disabled:from-slate-400 disabled:to-slate-400 disabled:cursor-not-allowed text-white font-bold text-sm sm:text-base shadow-lg shadow-brand-600/20 transition flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <span id="btn-start-label">Vérifier le CIN &amp; Démarrer l’Examen</span>
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                </svg>
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Consignes de passation (sans liste des types de questions) -->
+        <div class="lg:col-span-4 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 shadow-sm space-y-4">
+          <div class="flex items-center gap-2.5">
+            <span class="w-9 h-9 rounded-xl bg-brand-50 dark:bg-brand-950 text-brand-700 dark:text-brand-300 flex items-center justify-center font-bold text-sm">
+              i
+            </span>
+            <h3 class="text-base font-bold text-slate-900 dark:text-white">
+              Consignes de Déroulement
+            </h3>
+          </div>
+          <ul class="space-y-3 text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+            <li class="flex items-start gap-2.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-brand-600 mt-2 shrink-0"></span>
+              <span>Répondez à l’ensemble des <strong>20 questions</strong> avant la soumission définitive.</span>
+            </li>
+            <li class="flex items-start gap-2.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-brand-600 mt-2 shrink-0"></span>
+              <span>Vous pouvez marquer une question pour la revoir puis la valider dans la fenêtre de confirmation.</span>
+            </li>
+            <li class="flex items-start gap-2.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-brand-600 mt-2 shrink-0"></span>
+              <span>Chaque copie est horodatée et enregistrée avec la durée totale utilisée.</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- VUE 2 : PASSATION DE L'EXAMEN                                        -->
+    <!-- ===================================================================== -->
+    <section id="view-exam" class="hidden fade-in space-y-6">
+      <!-- Barre de progression & compteur -->
+      <div class="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 sm:p-5 shadow-sm">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
+          <div class="flex flex-wrap items-center gap-2 text-xs sm:text-sm">
+            <span class="font-bold text-brand-700 dark:text-brand-300" id="exam-student-summary">—</span>
+            <span class="text-slate-400">•</span>
+            <span class="font-semibold text-slate-700 dark:text-slate-200" id="exam-answered-count">0 / 20 répondues</span>
+            <span id="exam-remaining-badge" class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300">
+              20 restante(s)
+            </span>
+            <span id="exam-flagged-badge" class="hidden px-2.5 py-0.5 rounded-full text-xs font-semibold bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300">
+              0 à revoir
+            </span>
+          </div>
+          <div class="text-xs font-medium text-slate-500 dark:text-slate-400" id="exam-progress-pct">
+            0% complété
+          </div>
+        </div>
+        <div class="w-full h-2.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+          <div id="exam-progress-bar" class="h-full bg-gradient-to-r from-brand-600 to-accent-600 transition-all duration-300 w-0 rounded-full"></div>
+        </div>
+
+        <!-- Grille de navigation rapide 1..20 + légende -->
+        <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <div id="question-nav-pills" class="flex flex-wrap gap-1.5"></div>
+          <div class="flex flex-wrap items-center gap-3 text-[11px] text-slate-500 dark:text-slate-400 shrink-0">
+            <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-brand-600 inline-block"></span>Actuelle</span>
+            <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-emerald-500 inline-block"></span>Répondue</span>
+            <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-amber-500 inline-block"></span>À revoir</span>
+            <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-slate-300 dark:bg-slate-700 inline-block"></span>Vide</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Carte question -->
+      <div id="question-card" class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 sm:p-8 shadow-sm"></div>
+
+      <!-- Boutons navigation & soumission -->
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-1">
+        <button
+          type="button"
+          id="btn-prev-q"
+          class="px-5 py-3 rounded-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 font-semibold text-sm transition disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+        >
+          ← Question précédente
+        </button>
+
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+          <button
+            type="button"
+            id="btn-next-q"
+            class="px-5 py-3 rounded-2xl bg-slate-900 dark:bg-brand-600 hover:bg-slate-800 dark:hover:bg-brand-700 text-white font-semibold text-sm transition cursor-pointer"
+          >
+            Question suivante →
+          </button>
+
+          <button
+            type="button"
+            id="btn-submit-exam"
+            class="px-6 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-md shadow-emerald-600/20 transition flex items-center justify-center gap-2 cursor-pointer"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+            </svg>
+            <span>Soumettre l’Examen</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- VUE 3 : FIN D'EXAMEN, REMERCIEMENT & CONFIRMATION D'ENREGISTREMENT  -->
+    <!-- ===================================================================== -->
+    <section id="view-results" class="hidden fade-in space-y-6">
+      <div class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 sm:p-10 shadow-sm text-center">
+        <div class="w-16 h-16 rounded-2xl bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 flex items-center justify-center mx-auto mb-4 text-3xl font-extrabold shadow-sm">
+          ✓
+        </div>
+        <span class="inline-flex items-center px-3.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 mb-3">
+          Examen Terminé • M1 MITD
+        </span>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white">
+          Merci pour votre travail !
+        </h2>
+        <p class="mt-2 text-sm sm:text-base text-slate-600 dark:text-slate-300 max-w-2xl mx-auto leading-relaxed">
+          Vos réponses aux <strong>20 questions</strong> ont bien été prises en compte. Conformément aux consignes de cette session, la note et le corrigé ne sont pas affichés à l’écran.
+        </p>
+
+        <!-- Récapitulatif de passation sans note ni corrigé -->
+        <div class="mt-7 max-w-2xl mx-auto rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 p-5 text-left grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs sm:text-sm">
+          <div>
+            <span class="block text-[11px] uppercase tracking-wider font-semibold text-slate-400">Candidat</span>
+            <span id="result-student-name" class="font-bold text-slate-900 dark:text-white mt-0.5 block">—</span>
+          </div>
+          <div>
+            <span class="block text-[11px] uppercase tracking-wider font-semibold text-slate-400">CIN</span>
+            <span id="result-student-cin" class="font-mono font-bold text-slate-900 dark:text-white mt-0.5 block">—</span>
+          </div>
+          <div>
+            <span class="block text-[11px] uppercase tracking-wider font-semibold text-slate-400">Date &amp; Heure</span>
+            <span id="result-submitted-at" class="font-medium text-slate-800 dark:text-slate-200 mt-0.5 block">—</span>
+          </div>
+          <div>
+            <span class="block text-[11px] uppercase tracking-wider font-semibold text-slate-400">Temps utilisé</span>
+            <span id="result-time-used" class="font-mono font-bold text-slate-900 dark:text-white mt-0.5 block">00:00</span>
+          </div>
+        </div>
+
+        <!-- Statut d'enregistrement -->
+        <div id="sheet-sync-status" class="mt-5 max-w-2xl mx-auto p-4 rounded-2xl bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/70 text-xs sm:text-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-left">
+          <div id="sheet-sync-message" class="font-medium text-slate-700 dark:text-slate-200">
+            Enregistrement de votre copie en cours…
+          </div>
+          <button
+            type="button"
+            id="btn-retry-sheet"
+            class="hidden px-3.5 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-semibold text-xs transition cursor-pointer shrink-0"
+          >
+            Réessayer l’envoi
+          </button>
+        </div>
+
+        <div class="mt-7 flex flex-col sm:flex-row items-center justify-center gap-3 no-print">
+          <button
+            type="button"
+            id="btn-print-result"
+            class="w-full sm:w-auto px-5 py-3 rounded-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 font-semibold text-sm transition cursor-pointer"
+          >
+            Imprimer l’attestation de passage
+          </button>
+          <button
+            type="button"
+            id="btn-next-student"
+            class="w-full sm:w-auto px-6 py-3 rounded-2xl bg-brand-600 hover:bg-brand-700 text-white font-bold text-sm shadow-md shadow-brand-600/20 transition cursor-pointer"
+          >
+            Nouveau candidat (écran d’accueil)
+          </button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ===================================================================== -->
+  <!-- MODALE DE CONFIRMATION AVANT SOUMISSION FINALE                       -->
+  <!-- ===================================================================== -->
+  <div id="confirm-submit-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/70 backdrop-blur-sm p-4 no-print">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-lg w-full shadow-2xl p-6 sm:p-7 space-y-5 fade-in">
+      <div class="flex items-start gap-3.5">
+        <div class="w-11 h-11 rounded-2xl bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 flex items-center justify-center shrink-0 font-bold text-lg">
+          ✓
+        </div>
+        <div>
+          <h2 class="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white">
+            Confirmer la soumission définitive ?
+          </h2>
+          <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-1 leading-relaxed">
+            Vous avez répondu aux <strong>20 questions</strong>. Après confirmation, la copie est envoyée et votre CIN ne pourra plus repasser l’examen.
+          </p>
+        </div>
+      </div>
+
+      <div id="confirm-modal-recap" class="rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 p-4 text-xs sm:text-sm space-y-1 text-slate-700 dark:text-slate-200"></div>
+
+      <div class="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5 pt-1">
+        <button
+          type="button"
+          id="btn-cancel-submit"
+          class="px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 font-semibold text-sm transition cursor-pointer"
+        >
+          Annuler
+        </button>
+        <button
+          type="button"
+          id="btn-confirm-submit"
+          class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-md shadow-emerald-600/20 transition cursor-pointer"
+        >
+          Confirmer et soumettre
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- MODALE MODE PROFESSEUR (PROTÉGÉE PAR CODE PIN ENSEIGNANT)            -->
+  <!-- ===================================================================== -->
+  <div id="prof-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/70 backdrop-blur-sm p-4 no-print">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl p-6 sm:p-8 space-y-6">
+      <div class="flex items-start justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-4">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-accent-600 dark:text-teal-400">
+            Accès Restreint — Mode Professeur
+          </span>
+          <h2 class="text-xl font-extrabold text-slate-900 dark:text-white mt-0.5">
+            Réglage Apps Script &amp; Sauvegarde CSV
+          </h2>
+        </div>
+        <button
+          type="button"
+          id="btn-close-prof-modal"
+          class="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 cursor-pointer"
+          aria-label="Fermer"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Étape PIN -->
+      <div id="prof-pin-gate" class="space-y-4">
+        <p class="text-sm text-slate-600 dark:text-slate-300">
+          Entrez le code PIN enseignant pour ajuster l’URL Google Apps Script, télécharger un CSV de sauvegarde ou gérer un verrou CIN local de test.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-2.5">
+          <input
+            type="password"
+            id="prof-pin-input"
+            maxlength="8"
+            placeholder="Code PIN enseignant"
+            class="flex-1 px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-800 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+          />
+          <button
+            type="button"
+            id="btn-unlock-prof"
+            class="px-5 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-semibold text-sm transition cursor-pointer shrink-0"
+          >
+            Déverrouiller
+          </button>
+        </div>
+      </div>
+
+      <!-- Panneau déverrouillé -->
+      <div id="prof-unlocked-panel" class="hidden space-y-5">
+        <div class="rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 p-4 sm:p-5 space-y-3">
+          <label for="prof-script-url" class="block text-sm font-bold text-slate-800 dark:text-slate-100">
+            URL Google Apps Script
+          </label>
+          <input
+            type="url"
+            id="prof-script-url"
+            class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-brand-500"
+          />
+          <div class="flex flex-wrap gap-2">
+            <button
+              type="button"
+              id="btn-save-script-url"
+              class="px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-semibold text-xs transition cursor-pointer"
+            >
+              Enregistrer l’URL
+            </button>
+            <button
+              type="button"
+              id="btn-test-script-url"
+              class="px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 font-semibold text-xs transition cursor-pointer"
+            >
+              Tester la connexion (GET)
+            </button>
+            <button
+              type="button"
+              id="btn-prof-download-csv"
+              class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs transition cursor-pointer"
+            >
+              Télécharger CSV de sauvegarde
+            </button>
+          </div>
+          <p id="prof-test-result" class="text-xs font-mono text-slate-600 dark:text-slate-300"></p>
+        </div>
+
+        <div class="rounded-2xl bg-amber-50/80 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/70 p-4 sm:p-5 space-y-3">
+          <h3 class="text-sm font-bold text-amber-900 dark:text-amber-200">
+            Libérer un CIN bloqué en local (test)
+          </h3>
+          <div class="flex flex-col sm:flex-row gap-2">
+            <input
+              type="text"
+              id="prof-reset-cin"
+              placeholder="CIN (ex. AB123456)"
+              class="flex-1 px-3.5 py-2 rounded-xl border border-amber-300 dark:border-amber-700 bg-white dark:bg-slate-900 text-xs sm:text-sm font-mono uppercase"
+            />
+            <button
+              type="button"
+              id="btn-prof-reset-cin"
+              class="px-4 py-2 rounded-xl bg-amber-700 hover:bg-amber-800 text-white font-semibold text-xs transition cursor-pointer shrink-0"
+            >
+              Libérer en local
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- SCRIPT PRINCIPAL                                                      -->
+  <!-- ===================================================================== -->
+  <script>
+    (function () {
+      "use strict";
+
+      // URL Google Apps Script pré-configurée par défaut
+      const DEFAULT_APPS_SCRIPT_URL =
+        "https://script.google.com/macros/s/AKfycbyIfKccmYFh0EV4xJrsoSHi83ObPHoMLEkTp5nlCUpKWqj8Ov2WRaqjkL23958OTvWL/exec";
+
+      const STORAGE_KEYS = {
+        SCRIPT_URL: "m1_mitd_gas_url_v4",
+        LOCKED_CINS: "m1_mitd_locked_cins_v4",
+        THEME: "m1_mitd_theme_v4"
+      };
+
+      const SECTIONS = {
+        auto_etl: { id: "auto_etl", label: "Automatisation & ETL", max: 4 },
+        excel_pq: { id: "excel_pq", label: "Excel & Power Query", max: 9 },
+        tcd_rep: { id: "tcd_rep", label: "TCD & Reporting", max: 4 },
+        gcd_kpi: { id: "gcd_kpi", label: "GCD, KPI & Actualisation", max: 3 }
+      };
+
+      // 20 questions simplifiées couvrant l'ensemble de questions.txt (1 pt / question = 20 pts)
+      const QUESTIONS = [
+        {
+          id: 1,
+          section: "auto_etl",
+          type: "qcm",
+          title: "Qu’est-ce que l’automatisation de données ?",
+          prompt: "Que signifie automatiser les données ?",
+          options: [
+            "Collecter, nettoyer et mettre à jour les données automatiquement sans refaire le travail à la main",
+            "Recopier tous les chiffres à la main chaque matin",
+            "Effacer les données dès qu’elles sont ouvertes",
+            "Imprimer toutes les feuilles avant de calculer"
+          ],
+          correctAnswer: "Collecter, nettoyer et mettre à jour les données automatiquement sans refaire le travail à la main",
+          explanation: "L’automatisation des données permet de répéter la collecte, le nettoyage et la mise à jour sans ressaisie manuelle."
+        },
+        {
+          id: 2,
+          section: "auto_etl",
+          type: "intrus",
+          title: "Avantages de l’automatisation de données",
+          prompt: "Quel élément est l’INTRUS (ce n’est PAS un avantage) ?",
+          options: [
+            "Gain de temps",
+            "Moins d’erreurs humaines",
+            "Mise à jour rapide et fiable",
+            "Plus de copier-coller manuel à chaque fois"
+          ],
+          correctAnswer: "Plus de copier-coller manuel à chaque fois",
+          explanation: "Automatiser réduit le copier-coller manuel, les erreurs et le temps passé."
+        },
+        {
+          id: 3,
+          section: "auto_etl",
+          type: "association",
+          title: "Qu’est-ce que l’ETL ?",
+          prompt: "Associez chaque étape ETL à son rôle :",
+          pairs: [
+            { left: "Extract (Extraire)", right: "Récupérer les données depuis la source (CSV, fichier, base)" },
+            { left: "Transform (Transformer)", right: "Nettoyer, corriger le type et calculer les données" },
+            { left: "Load (Charger)", right: "Envoyer les données propres vers Excel ou le rapport" }
+          ],
+          explanation: "ETL = Extraire depuis la source, Transformer (nettoyer/calculer), Charger vers la destination."
+        },
+        {
+          id: 4,
+          section: "auto_etl",
+          type: "classement",
+          title: "Étapes de l’automatisation avec Excel",
+          prompt: "Classez ces 4 étapes dans l’ordre (de 1 à 4) :",
+          items: [
+            "Importer la source de données",
+            "Nettoyer et transformer les données",
+            "Charger dans Excel",
+            "Actualiser quand de nouvelles données arrivent"
+          ],
+          correctOrder: [
+            "Importer la source de données",
+            "Nettoyer et transformer les données",
+            "Charger dans Excel",
+            "Actualiser quand de nouvelles données arrivent"
+          ],
+          explanation: "On importe d’abord la source, on nettoie/transforme, on charge dans Excel, puis on actualise."
+        },
+        {
+          id: 5,
+          section: "excel_pq",
+          type: "qcm",
+          title: "Qu’est-ce que Power Query ?",
+          prompt: "À quoi sert Power Query dans Excel ?",
+          options: [
+            "À importer, nettoyer et transformer des données sans modifier le fichier d’origine",
+            "À créer des diapositives de présentation",
+            "À vérifier l’orthographe d’un courrier",
+            "À dessiner des plans d’architecture"
+          ],
+          correctAnswer: "À importer, nettoyer et transformer des données sans modifier le fichier d’origine",
+          explanation: "Power Query est l’outil d’Excel qui importe et transforme les données tout en gardant la source intacte."
+        },
+        {
+          id: 6,
+          section: "excel_pq",
+          type: "qcm",
+          title: "Importer des données CSV",
+          prompt: "Quelle commande Excel permet d’importer un fichier CSV ?",
+          options: [
+            "Données > Obtenir des données > À partir d’un fichier > À partir d’un fichier texte/CSV",
+            "Insertion > Zone de texte > CSV",
+            "Affichage > Plein écran > CSV",
+            "Révision > Traduire > CSV"
+          ],
+          correctAnswer: "Données > Obtenir des données > À partir d’un fichier > À partir d’un fichier texte/CSV",
+          explanation: "L’import d’un fichier CSV se fait via Données > Obtenir des données > Texte/CSV."
+        },
+        {
+          id: 7,
+          section: "excel_pq",
+          type: "qcm",
+          title: "Corriger des anomalies dans les données",
+          prompt: "Si vous voyez des anomalies dans les données collectées, sur quel bouton cliquez-vous pour les modifier ?",
+          options: [
+            "Transformer les données (pour ouvrir l’Éditeur Power Query et corriger)",
+            "Annuler",
+            "Imprimer",
+            "Masquer"
+          ],
+          correctAnswer: "Transformer les données (pour ouvrir l’Éditeur Power Query et corriger)",
+          explanation: "« Transformer les données » ouvre Power Query pour nettoyer et modifier les anomalies."
+        },
+        {
+          id: 8,
+          section: "excel_pq",
+          type: "qcm",
+          title: "Qu’est-ce qu’une requête dans Power Query ?",
+          prompt: "Qu’est-ce qu’une requête dans Power Query ?",
+          options: [
+            "La suite enregistrée des étapes de transformation appliquées aux données",
+            "Une cellule colorée en rouge",
+            "Un graphique en colonnes",
+            "Un mot de passe d’ouverture"
+          ],
+          correctAnswer: "La suite enregistrée des étapes de transformation appliquées aux données",
+          explanation: "Une requête garde en mémoire les étapes de transformation pour les rejouer à chaque actualisation."
+        },
+        {
+          id: 9,
+          section: "excel_pq",
+          type: "qcm",
+          title: "Première ligne comme en-tête",
+          prompt: "Sur quelle commande cliquez-vous pour utiliser la première ligne comme en-tête de tableau ?",
+          options: [
+            "Utiliser la première ligne comme en-têtes",
+            "Supprimer les doublons",
+            "Fractionner la colonne",
+            "Compter les lignes"
+          ],
+          correctAnswer: "Utiliser la première ligne comme en-têtes",
+          explanation: "« Utiliser la première ligne comme en-têtes » place la 1re ligne comme titres de colonnes."
+        },
+        {
+          id: 10,
+          section: "excel_pq",
+          type: "qcm",
+          title: "Type Texte vers type Décimal",
+          prompt: "Quelle commande permet de passer une colonne de type Texte au type Décimal ?",
+          options: [
+            "Type de données (ou l’icône en haut de la colonne) > Nombre décimal",
+            "Mettre en gras",
+            "Insérer un commentaire",
+            "Fusionner les cellules"
+          ],
+          correctAnswer: "Type de données (ou l’icône en haut de la colonne) > Nombre décimal",
+          explanation: "Choisir « Nombre décimal » permet de traiter la colonne comme un nombre à virgule pour les calculs."
+        },
+        {
+          id: 11,
+          section: "excel_pq",
+          type: "qcm",
+          title: "Extraire l’année d’une date sans nouvelle colonne",
+          prompt: "Pour extraire l’année d’une date SANS créer une nouvelle colonne, sur quelle commande cliquez-vous ?",
+          options: [
+            "Onglet Transformer > Date > Année",
+            "Onglet Ajouter une colonne > Date > Année",
+            "Fichier > Imprimer",
+            "Affichage > Grille"
+          ],
+          correctAnswer: "Onglet Transformer > Date > Année",
+          explanation: "L’onglet « Transformer » modifie la colonne existante sur place sans créer de nouvelle colonne."
+        },
+        {
+          id: 12,
+          section: "excel_pq",
+          type: "qcm",
+          title: "Ajouter une nouvelle colonne calculée",
+          prompt: "Sur quelle commande cliquez-vous pour ajouter une nouvelle colonne calculée à partir de colonnes existantes ?",
+          options: [
+            "Ajouter une colonne > Colonne personnalisée",
+            "Supprimer la colonne",
+            "Masquer la colonne",
+            "Geler la colonne"
+          ],
+          correctAnswer: "Ajouter une colonne > Colonne personnalisée",
+          explanation: "« Colonne personnalisée » (dans « Ajouter une colonne ») crée une nouvelle colonne calculée."
+        },
+        {
+          id: 13,
+          section: "excel_pq",
+          type: "qcm",
+          title: "Valider et aller vers Excel",
+          prompt: "Une fois la transformation terminée dans Power Query, sur quelle commande cliquez-vous pour valider et aller vers Excel ?",
+          options: [
+            "Fermer et charger",
+            "Quitter sans enregistrer",
+            "Annuler la dernière étape",
+            "Réinitialiser le zoom"
+          ],
+          correctAnswer: "Fermer et charger",
+          explanation: "« Fermer et charger » valide les transformations et renvoie les données vers Excel."
+        },
+        {
+          id: 14,
+          section: "excel_pq",
+          type: "association",
+          title: "Tableau Excel vs Plage de cellules",
+          prompt: "Associez chaque caractéristique au bon élément Excel :",
+          pairs: [
+            { left: "S’agrandit automatiquement quand on ajoute des lignes", right: "Tableau structuré Excel" },
+            { left: "Utilise les noms de colonnes dans les formules", right: "Tableau structuré Excel" },
+            { left: "Plage simple sans mise en forme de tableau", right: "Plage de cellules" }
+          ],
+          explanation: "Un Tableau Excel s’étend automatiquement aux nouvelles lignes et facilite la mise à jour des analyses."
+        },
+        {
+          id: 15,
+          section: "tcd_rep",
+          type: "qcm",
+          title: "Bonne pratique de reporting sur 3 feuilles",
+          prompt: "Quelle est la bonne pratique pour créer un reporting dans Excel ?",
+          options: [
+            "Utiliser 3 feuilles distinctes : Données, TCD, GCD (graphiques/reporting)",
+            "Tout mettre (données, TCD et GCD) sur une seule feuille mélangée",
+            "Supprimer les données brutes dès la création du TCD",
+            "Créer un fichier par ligne de données"
+          ],
+          correctAnswer: "Utiliser 3 feuilles distinctes : Données, TCD, GCD (graphiques/reporting)",
+          explanation: "Séparer Données, TCD et GCD sur 3 feuilles rend le reporting clair, lisible et facile à maintenir."
+        },
+        {
+          id: 16,
+          section: "tcd_rep",
+          type: "qcm",
+          title: "Créer un Tableau Croisé Dynamique (TCD)",
+          prompt: "Pour créer un TCD, sur quelle commande cliquez-vous ?",
+          options: [
+            "Insertion > Tableau croisé dynamique",
+            "Données > Trier",
+            "Révision > Orthographe",
+            "Affichage > Plein écran"
+          ],
+          correctAnswer: "Insertion > Tableau croisé dynamique",
+          explanation: "La commande « Tableau croisé dynamique » se trouve dans l’onglet « Insertion »."
+        },
+        {
+          id: 17,
+          section: "tcd_rep",
+          type: "qcm",
+          title: "Pourquoi renommer un TCD ?",
+          prompt: "Pour quelle raison un TCD doit-il être renommé ?",
+          options: [
+            "Pour le repérer facilement et éviter les confusions quand il y a plusieurs TCD",
+            "Parce qu’Excel interdit les calculs sans renommage",
+            "Pour effacer la feuille de données",
+            "Pour verrouiller le classeur"
+          ],
+          correctAnswer: "Pour le repérer facilement et éviter les confusions quand il y a plusieurs TCD",
+          explanation: "Renommer un TCD permet de l’identifier clairement et d’éviter les erreurs lorsqu’il y en a plusieurs."
+        },
+        {
+          id: 18,
+          section: "tcd_rep",
+          type: "intrus",
+          title: "Bonnes pratiques pour créer un GCD",
+          prompt: "Quel choix est l’INTRUS (une mauvaise pratique pour un Graphique Croisé Dynamique) ?",
+          options: [
+            "Partir d’un TCD clair et bien nommé",
+            "Placer le GCD sur la feuille de reporting/graphiques",
+            "Garder le graphique lisible et relié aux données",
+            "Taper les chiffres à la main dans le graphique"
+          ],
+          correctAnswer: "Taper les chiffres à la main dans le graphique",
+          explanation: "Un GCD doit rester lié aux données et au TCD, pas être modifié manuellement."
+        },
+        {
+          id: 19,
+          section: "gcd_kpi",
+          type: "qcm",
+          title: "Qu’est-ce qu’un KPI ?",
+          prompt: "Qu’est-ce qu’un KPI ?",
+          options: [
+            "Un indicateur clé de performance qui mesure l’efficacité par rapport à un objectif",
+            "Un raccourci clavier pour enregistrer",
+            "Un type de fichier compressé",
+            "Une imprimante industrielle"
+          ],
+          correctAnswer: "Un indicateur clé de performance qui mesure l’efficacité par rapport à un objectif",
+          explanation: "Un KPI (Key Performance Indicator) mesure la performance d’une activité face à un objectif."
+        },
+        {
+          id: 20,
+          section: "gcd_kpi",
+          type: "qcm",
+          title: "Mettre à jour les données dans Excel",
+          prompt: "Sur quelle commande Excel cliquez-vous pour mettre à jour les données / requêtes / TCD ?",
+          options: [
+            "Données > Actualiser tout",
+            "Fichier > Nouveau",
+            "Accueil > Effacer tout",
+            "Affichage > Zoom"
+          ],
+          correctAnswer: "Données > Actualiser tout",
+          explanation: "« Actualiser tout » (dans l’onglet Données) met à jour les requêtes, données et TCD."
+        }
+      ];
+
+      // État applicatif
+      const state = {
+        student: null,          // { cin, nom, prenom, dob, sexe }
+        currentIndex: 0,
+        answers: {},
+        reviewFlags: {},        // { [questionId]: boolean }
+        associationChoices: {}, // { [questionId]: string[] }
+        timerSeconds: 0,
+        timerInterval: null,
+        submittedAt: null,
+        evaluation: null,
+        lastPayload: null
+      };
+
+      const $ = (id) => document.getElementById(id);
+
+      // Mélange Fisher-Yates pour éviter l'ordre fixe des réponses d'association
+      function shuffleList(items) {
+        const arr = items.slice();
+        for (let i = arr.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          const tmp = arr[i];
+          arr[i] = arr[j];
+          arr[j] = tmp;
+        }
+        return arr;
+      }
+
+      // Réponses par défaut et marquage pour revoir
+      function initDefaultAnswers() {
+        state.answers = {};
+        state.reviewFlags = {};
+        state.associationChoices = {};
+        QUESTIONS.forEach((q) => {
+          state.reviewFlags[q.id] = false;
+          if (q.type === "qcm" || q.type === "intrus") {
+            state.answers[q.id] = "";
+          } else if (q.type === "classement") {
+            const arr = q.items.slice();
+            if (arr.length >= 2) {
+              const first = arr.shift();
+              arr.push(first);
+            }
+            state.answers[q.id] = arr;
+          } else if (q.type === "association") {
+            const map = {};
+            const uniqueChoices = Array.from(new Set(q.pairs.map((p) => p.right)));
+            state.associationChoices[q.id] = shuffleList(uniqueChoices);
+            q.pairs.forEach((_, idx) => {
+              map[idx] = "";
+            });
+            state.answers[q.id] = map;
+          }
+        });
+      }
+
+      function toggleReviewFlag(questionId) {
+        state.reviewFlags[questionId] = !state.reviewFlags[questionId];
+        renderCurrentQuestion();
+        showToast(
+          state.reviewFlags[questionId]
+            ? `Question ${questionId} marquée pour revoir.`
+            : `Marquage retiré pour la question ${questionId}.`,
+          "info"
+        );
+      }
+
+      function normalizeCin(cin) {
+        return String(cin || "").trim().toUpperCase().replace(/\s+/g, "");
+      }
+
+      function formatSeconds(sec) {
+        const s = Math.max(0, Number(sec) || 0);
+        const mins = Math.floor(s / 60);
+        const rem = s % 60;
+        return String(mins).padStart(2, "0") + ":" + String(rem).padStart(2, "0");
+      }
+
+      function escapeHtml(str) {
+        return String(str || "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+
+      function escapeHtmlAttr(str) {
+        return escapeHtml(str).replace(/'/g, "&#39;");
+      }
+
+      function showToast(message, type = "info") {
+        const container = $("toast-container");
+        if (!container) return;
+
+        const palette = {
+          info: "bg-slate-900 text-white border-slate-700",
+          success: "bg-emerald-700 text-white border-emerald-600",
+          warning: "bg-amber-700 text-white border-amber-600",
+          error: "bg-red-700 text-white border-red-600"
+        };
+
+        const toast = document.createElement("div");
+        toast.className = `pointer-events-auto fade-in px-4 py-3 rounded-2xl border shadow-lg text-xs sm:text-sm font-medium ${palette[type] || palette.info}`;
+        toast.textContent = message;
+        container.appendChild(toast);
+
+        setTimeout(() => {
+          toast.style.opacity = "0";
+          toast.style.transition = "opacity 0.25s ease";
+          setTimeout(() => toast.remove(), 260);
+        }, 4200);
+      }
+
+      function getAppsScriptUrl() {
+        try {
+          const saved = localStorage.getItem(STORAGE_KEYS.SCRIPT_URL);
+          return (saved && saved.trim()) || DEFAULT_APPS_SCRIPT_URL;
+        } catch (e) {
+          return DEFAULT_APPS_SCRIPT_URL;
+        }
+      }
+
+      function saveAppsScriptUrl(url) {
+        try {
+          localStorage.setItem(STORAGE_KEYS.SCRIPT_URL, String(url || "").trim());
+        } catch (e) {}
+      }
+
+      function getLocalLockedCins() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEYS.LOCKED_CINS);
+          const arr = raw ? JSON.parse(raw) : [];
+          return Array.isArray(arr) ? arr.map(normalizeCin) : [];
+        } catch (e) {
+          return [];
+        }
+      }
+
+      function lockCinLocally(cin) {
+        const norm = normalizeCin(cin);
+        if (!norm) return;
+        const set = new Set(getLocalLockedCins());
+        set.add(norm);
+        try {
+          localStorage.setItem(STORAGE_KEYS.LOCKED_CINS, JSON.stringify(Array.from(set)));
+        } catch (e) {}
+      }
+
+      function unlockCinLocally(cin) {
+        const norm = normalizeCin(cin);
+        const next = getLocalLockedCins().filter((c) => c !== norm);
+        try {
+          localStorage.setItem(STORAGE_KEYS.LOCKED_CINS, JSON.stringify(next));
+        } catch (e) {}
+      }
+
+      // Contrôle anti-double passation via GET ?action=checkCin&cin=...
+      async function checkCinViaGet(cin) {
+        const norm = normalizeCin(cin);
+        const url = getAppsScriptUrl();
+        if (!norm || !url) {
+          return { checked: false, alreadySubmitted: false };
+        }
+        try {
+          const sep = url.includes("?") ? "&" : "?";
+          const endpoint = `${url}${sep}action=checkCin&cin=${encodeURIComponent(norm)}&_t=${Date.now()}`;
+          const resp = await fetch(endpoint, { method: "GET", cache: "no-store" });
+          if (!resp.ok) {
+            return { checked: false, alreadySubmitted: false };
+          }
+          const data = await resp.json();
+          if (data && data.ok === true) {
+            if (data.alreadySubmitted) {
+              lockCinLocally(norm);
+            }
+            return { checked: true, alreadySubmitted: Boolean(data.alreadySubmitted) };
+          }
+          return { checked: false, alreadySubmitted: false };
+        } catch (e) {
+          return { checked: false, alreadySubmitted: false };
+        }
+      }
+
+      function showLockBanner(message) {
+        const banner = $("cin-locked-banner");
+        const reason = $("cin-locked-reason");
+        if (reason && message) reason.textContent = message;
+        if (banner) banner.classList.remove("hidden");
+        const btn = $("btn-start-exam");
+        if (btn) btn.disabled = true;
+      }
+
+      function hideLockBanner() {
+        const banner = $("cin-locked-banner");
+        if (banner) banner.classList.add("hidden");
+        const btn = $("btn-start-exam");
+        if (btn) btn.disabled = false;
+      }
+
+      function updateSheetStatusBadge() {
+        const pill = $("sheet-status-pill");
+        if (!pill) return;
+        const hasUrl = Boolean(getAppsScriptUrl());
+        if (hasUrl) {
+          pill.className = "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/70 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800";
+          pill.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500"></span>Enregistrement actif`;
+        } else {
+          pill.className = "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 dark:bg-amber-950/70 dark:text-amber-300 border border-amber-200 dark:border-amber-800";
+          pill.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500"></span>Sauvegarde locale`;
+        }
+      }
+
+      function isQuestionAnswered(q) {
+        const val = state.answers[q.id];
+        if (q.type === "qcm" || q.type === "intrus") {
+          return typeof val === "string" && val.trim().length > 0;
+        }
+        if (q.type === "classement") {
+          return Array.isArray(val) && val.length === q.items.length;
+        }
+        if (q.type === "association") {
+          if (!val || typeof val !== "object") return false;
+          return q.pairs.every((_, idx) => typeof val[idx] === "string" && val[idx].trim().length > 0);
+        }
+        return false;
+      }
+
+      function renderProgressBar() {
+        const answeredCount = QUESTIONS.filter(isQuestionAnswered).length;
+        const remainingCount = QUESTIONS.length - answeredCount;
+        const pct = Math.round((answeredCount / QUESTIONS.length) * 100);
+
+        $("exam-answered-count").textContent = `${answeredCount} / ${QUESTIONS.length} répondues`;
+        $("exam-progress-pct").textContent = `${pct}% complété`;
+        $("exam-progress-bar").style.width = `${pct}%`;
+
+        const remBadge = $("exam-remaining-badge");
+        if (remBadge) {
+          if (remainingCount === 0) {
+            remBadge.textContent = "Toutes répondues (20/20)";
+            remBadge.className = "px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300";
+          } else {
+            remBadge.textContent = `${remainingCount} restante(s)`;
+            remBadge.className = "px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300";
+          }
+        }
+
+        const flaggedIds = QUESTIONS.filter((q) => Boolean(state.reviewFlags[q.id])).map((q) => q.id);
+        const flagBadge = $("exam-flagged-badge");
+        if (flagBadge) {
+          if (flaggedIds.length > 0) {
+            flagBadge.textContent = `${flaggedIds.length} à revoir (Q${flaggedIds.join(", Q")})`;
+            flagBadge.classList.remove("hidden");
+          } else {
+            flagBadge.classList.add("hidden");
+          }
+        }
+
+        const pills = $("question-nav-pills");
+        pills.innerHTML = "";
+        QUESTIONS.forEach((q, idx) => {
+          const isCurrent = idx === state.currentIndex;
+          const answered = isQuestionAnswered(q);
+          const flagged = Boolean(state.reviewFlags[q.id]);
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.textContent = String(q.id);
+          btn.title = `Question ${q.id} — ${q.title}${flagged ? " (Marquée pour revoir)" : ""}`;
+
+          let cls = "relative w-8 h-8 rounded-lg text-xs font-bold transition cursor-pointer border ";
+          if (isCurrent) {
+            cls += "bg-brand-600 text-white border-brand-600 shadow-sm ring-2 ring-brand-400/50";
+          } else if (flagged) {
+            cls += "bg-amber-100 text-amber-900 border-amber-400 dark:bg-amber-950/80 dark:text-amber-200 dark:border-amber-600 hover:bg-amber-200";
+          } else if (answered) {
+            cls += "bg-emerald-50 text-emerald-700 border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800 hover:bg-emerald-100";
+          } else {
+            cls += "bg-slate-50 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700 hover:bg-slate-100";
+          }
+          btn.className = cls;
+          if (flagged) {
+            btn.innerHTML = `${q.id}<span class="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-amber-500 ring-2 ring-white dark:ring-slate-900"></span>`;
+          }
+          btn.addEventListener("click", () => {
+            state.currentIndex = idx;
+            renderCurrentQuestion();
+          });
+          pills.appendChild(btn);
+        });
+      }
+
+      function getTypeBadge(type) {
+        const map = {
+          qcm: { label: "QCM — Choix unique", cls: "bg-brand-50 text-brand-700 dark:bg-brand-950 dark:text-brand-300 border-brand-200 dark:border-brand-800" },
+          intrus: { label: "Intrus", cls: "bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300 border-amber-200 dark:border-amber-800" },
+          classement: { label: "Classement", cls: "bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800" },
+          association: { label: "Association", cls: "bg-purple-50 text-purple-700 dark:bg-purple-950 dark:text-purple-300 border-purple-200 dark:border-purple-800" }
+        };
+        return map[type] || map.qcm;
+      }
+
+      function renderCurrentQuestion() {
+        const q = QUESTIONS[state.currentIndex];
+        const card = $("question-card");
+        const badge = getTypeBadge(q.type);
+        const secLabel = SECTIONS[q.section] ? SECTIONS[q.section].label : "";
+        const isFlagged = Boolean(state.reviewFlags[q.id]);
+
+        let html = `
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="px-3 py-1 rounded-full text-xs font-bold bg-slate-900 dark:bg-white text-white dark:text-slate-900">
+                Question ${q.id} / ${QUESTIONS.length}
+              </span>
+              <span class="px-2.5 py-1 rounded-full text-xs font-semibold border ${badge.cls}">
+                ${badge.label}
+              </span>
+              <span class="text-xs font-medium text-slate-500 dark:text-slate-400">
+                ${escapeHtml(secLabel)}
+              </span>
+            </div>
+            <button
+              type="button"
+              id="btn-toggle-review-q"
+              class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border transition cursor-pointer ${
+                isFlagged
+                  ? "bg-amber-100 text-amber-900 border-amber-400 dark:bg-amber-900/70 dark:text-amber-100 dark:border-amber-500 shadow-xs"
+                  : "bg-slate-50 text-slate-700 border-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700 hover:border-amber-400 hover:text-amber-800"
+              }"
+            >
+              <span>${isFlagged ? "★ Marquée pour revoir" : "☆ Marquer pour revoir"}</span>
+            </button>
+          </div>
+
+          <h2 class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-2">
+            ${escapeHtml(q.title)}
+          </h2>
+          <p class="text-sm sm:text-base text-slate-700 dark:text-slate-200 leading-relaxed mb-6">
+            ${escapeHtml(q.prompt)}
+          </p>
+        `;
+
+        if (q.type === "qcm" || q.type === "intrus") {
+          const selected = state.answers[q.id] || "";
+          html += `<div class="space-y-3">`;
+          q.options.forEach((opt, i) => {
+            const checked = selected === opt;
+            const letter = String.fromCharCode(65 + i);
+            html += `
+              <label class="flex items-start gap-3.5 p-4 rounded-2xl border transition cursor-pointer ${
+                checked
+                  ? "border-brand-500 bg-brand-50/70 dark:bg-brand-950/50 dark:border-brand-400 ring-2 ring-brand-500/20"
+                  : "border-slate-200 dark:border-slate-700 bg-slate-50/60 dark:bg-slate-800/40 hover:border-brand-300 dark:hover:border-slate-600"
+              }">
+                <input
+                  type="radio"
+                  name="q_${q.id}"
+                  value="${escapeHtmlAttr(opt)}"
+                  ${checked ? "checked" : ""}
+                  class="mt-1 w-4 h-4 text-brand-600 focus:ring-brand-500 shrink-0"
+                />
+                <span class="w-6 h-6 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-xs font-bold text-slate-700 dark:text-slate-200 shrink-0">
+                  ${letter}
+                </span>
+                <span class="text-sm text-slate-800 dark:text-slate-100 leading-relaxed flex-1">
+                  ${escapeHtml(opt)}
+                </span>
+              </label>
+            `;
+          });
+          html += `</div>`;
+        } else if (q.type === "classement") {
+          const list = Array.isArray(state.answers[q.id]) ? state.answers[q.id] : q.items.slice();
+          html += `
+            <div class="rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 p-3.5 mb-4 text-xs sm:text-sm text-slate-600 dark:text-slate-300">
+              Utilisez <strong>↑</strong> et <strong>↓</strong> pour ordonner les éléments du <strong>1er</strong> au <strong>${list.length}e</strong>.
+            </div>
+            <div class="space-y-2.5">
+          `;
+          list.forEach((itemText, idx) => {
+            html += `
+              <div class="flex items-center justify-between gap-3 p-3.5 sm:p-4 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/80">
+                <div class="flex items-center gap-3 min-w-0">
+                  <span class="w-7 h-7 rounded-xl bg-brand-600 text-white font-mono text-xs font-bold flex items-center justify-center shrink-0">
+                    ${idx + 1}
+                  </span>
+                  <span class="text-sm text-slate-800 dark:text-slate-100 leading-snug">
+                    ${escapeHtml(itemText)}
+                  </span>
+                </div>
+                <div class="flex items-center gap-1.5 shrink-0">
+                  <button
+                    type="button"
+                    data-rank-move="up"
+                    data-rank-idx="${idx}"
+                    ${idx === 0 ? "disabled" : ""}
+                    class="p-2 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 disabled:opacity-30 disabled:cursor-not-allowed transition cursor-pointer"
+                    title="Monter"
+                  >↑</button>
+                  <button
+                    type="button"
+                    data-rank-move="down"
+                    data-rank-idx="${idx}"
+                    ${idx === list.length - 1 ? "disabled" : ""}
+                    class="p-2 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 disabled:opacity-30 disabled:cursor-not-allowed transition cursor-pointer"
+                    title="Descendre"
+                  >↓</button>
+                </div>
+              </div>
+            `;
+          });
+          html += `</div>`;
+        } else if (q.type === "association") {
+          const currentMap = state.answers[q.id] || {};
+          const choices = Array.isArray(state.associationChoices[q.id]) && state.associationChoices[q.id].length > 0
+            ? state.associationChoices[q.id]
+            : shuffleList(Array.from(new Set(q.pairs.map((p) => p.right))));
+          html += `<div class="space-y-4">`;
+          q.pairs.forEach((pair, idx) => {
+            const chosen = currentMap[idx] || "";
+            html += `
+              <div class="p-4 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50/70 dark:bg-slate-800/50 flex flex-col md:flex-row md:items-center justify-between gap-3">
+                <div class="text-sm font-semibold text-slate-800 dark:text-slate-100 md:w-5/12">
+                  <span class="inline-block px-2 py-0.5 rounded bg-brand-100 dark:bg-brand-900 text-brand-800 dark:text-brand-200 text-xs font-mono mr-2">#${idx + 1}</span>
+                  ${escapeHtml(pair.left)}
+                </div>
+                <div class="hidden md:flex items-center justify-center text-slate-400 font-bold">→</div>
+                <div class="md:w-6/12">
+                  <select
+                    data-assoc-idx="${idx}"
+                    class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-xs sm:text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                  >
+                    <option value="">-- Choisir la correspondance --</option>
+                    ${choices.map((rc) => `
+                      <option value="${escapeHtmlAttr(rc)}" ${chosen === rc ? "selected" : ""}>
+                        ${escapeHtml(rc)}
+                      </option>
+                    `).join("")}
+                  </select>
+                </div>
+              </div>
+            `;
+          });
+          html += `</div>`;
+        }
+
+        card.innerHTML = html;
+
+        const reviewBtn = $("btn-toggle-review-q");
+        if (reviewBtn) {
+          reviewBtn.addEventListener("click", () => toggleReviewFlag(q.id));
+        }
+
+        if (q.type === "qcm" || q.type === "intrus") {
+          card.querySelectorAll(`input[name="q_${q.id}"]`).forEach((radio) => {
+            radio.addEventListener("change", (e) => {
+              state.answers[q.id] = e.target.value;
+              renderCurrentQuestion();
+            });
+          });
+        } else if (q.type === "classement") {
+          card.querySelectorAll("button[data-rank-move]").forEach((btn) => {
+            btn.addEventListener("click", () => {
+              const dir = btn.getAttribute("data-rank-move");
+              const idx = Number(btn.getAttribute("data-rank-idx"));
+              const arr = state.answers[q.id].slice();
+              const targetIdx = dir === "up" ? idx - 1 : idx + 1;
+              if (targetIdx < 0 || targetIdx >= arr.length) return;
+              const tmp = arr[idx];
+              arr[idx] = arr[targetIdx];
+              arr[targetIdx] = tmp;
+              state.answers[q.id] = arr;
+              renderCurrentQuestion();
+            });
+          });
+        } else if (q.type === "association") {
+          card.querySelectorAll("select[data-assoc-idx]").forEach((sel) => {
+            sel.addEventListener("change", (e) => {
+              const idx = Number(e.target.getAttribute("data-assoc-idx"));
+              if (!state.answers[q.id] || typeof state.answers[q.id] !== "object") {
+                state.answers[q.id] = {};
+              }
+              state.answers[q.id][idx] = e.target.value;
+              renderProgressBar();
+            });
+          });
+        }
+
+        $("btn-prev-q").disabled = state.currentIndex === 0;
+        $("btn-next-q").textContent =
+          state.currentIndex === QUESTIONS.length - 1
+            ? "Aller à la soumission ✓"
+            : "Question suivante →";
+
+        renderProgressBar();
+      }
+
+      // Correction automatique (1 pt / question = 20 pts)
+      function evaluateExam() {
+        let noteSur20 = 0;
+        const sectionScores = {
+          auto_etl: 0,
+          excel_pq: 0,
+          tcd_rep: 0,
+          gcd_kpi: 0
+        };
+
+        const details = QUESTIONS.map((q) => {
+          let estCorrect = false;
+          let reponseEtudiant = "";
+          let reponseAttendue = "";
+
+          if (q.type === "qcm" || q.type === "intrus") {
+            const ans = state.answers[q.id] || "";
+            reponseEtudiant = ans || "(Sans réponse)";
+            reponseAttendue = q.correctAnswer;
+            estCorrect = ans === q.correctAnswer;
+          } else if (q.type === "classement") {
+            const arr = Array.isArray(state.answers[q.id]) ? state.answers[q.id] : [];
+            reponseEtudiant = arr.map((item, i) => `${i + 1}. ${item}`).join(" | ");
+            reponseAttendue = q.correctOrder.map((item, i) => `${i + 1}. ${item}`).join(" | ");
+            estCorrect =
+              arr.length === q.correctOrder.length &&
+              q.correctOrder.every((expectedItem, idx) => arr[idx] === expectedItem);
+          } else if (q.type === "association") {
+            const map = state.answers[q.id] || {};
+            reponseEtudiant = q.pairs
+              .map((p, idx) => `${p.left} -> ${map[idx] || "(Non associé)"}`)
+              .join(" | ");
+            reponseAttendue = q.pairs
+              .map((p) => `${p.left} -> ${p.right}`)
+              .join(" | ");
+            estCorrect = q.pairs.every((p, idx) => map[idx] === p.right);
+          }
+
+          const noteQuestion = estCorrect ? 1 : 0;
+          noteSur20 += noteQuestion;
+          if (sectionScores[q.section] !== undefined) {
+            sectionScores[q.section] += noteQuestion;
+          }
+
+          return {
+            numero: q.id,
+            section: q.section,
+            type: q.type,
+            question: `${q.title} — ${q.prompt}`,
+            reponseEtudiant,
+            reponseAttendue,
+            noteQuestion,
+            estCorrect,
+            explanation: q.explanation
+          };
+        });
+
+        let mention = "Insuffisant";
+        if (noteSur20 >= 16) mention = "Très Bien";
+        else if (noteSur20 >= 14) mention = "Bien";
+        else if (noteSur20 >= 12) mention = "Assez Bien";
+        else if (noteSur20 >= 10) mention = "Passable";
+
+        return {
+          noteSur20,
+          mention,
+          sectionScores,
+          details
+        };
+      }
+
+      // Construction du payload JSON demandé
+      function buildSubmissionPayload(evaluation) {
+        return {
+          dateHeure: new Date().toLocaleString("fr-FR"),
+          submittedAtIso: new Date().toISOString(),
+          etudiant: {
+            cin: state.student.cin,
+            nom: state.student.nom,
+            prenom: state.student.prenom,
+            dateNaissance: state.student.dob,
+            sexe: state.student.sexe
+          },
+          noteSur20: evaluation.noteSur20,
+          tempsUtilise: formatSeconds(state.timerSeconds),
+          tempsUtiliseSecondes: state.timerSeconds,
+          mention: evaluation.mention,
+          sectionScores: evaluation.sectionScores,
+          reponsesDetaillees: evaluation.details.map((d) => ({
+            numero: d.numero,
+            question: d.question,
+            reponseEtudiant: d.reponseEtudiant,
+            noteQuestion: d.noteQuestion,
+            estCorrect: d.estCorrect
+          }))
+        };
+      }
+
+      // Envoi POST JSON vers l'URL Apps Script
+      async function sendPayloadToAppsScript(payload) {
+        const url = getAppsScriptUrl();
+        const statusMsg = $("sheet-sync-message");
+        const retryBtn = $("btn-retry-sheet");
+
+        if (!url) {
+          statusMsg.innerHTML = `<span class="text-amber-700 dark:text-amber-300 font-semibold">Aucune URL Apps Script définie :</span> utilisez l’export CSV de secours ci-contre.`;
+          retryBtn.classList.add("hidden");
+          return;
+        }
+
+        statusMsg.textContent = `Transmission des résultats vers Google Apps Script (CIN : ${payload.etudiant.cin})…`;
+
+        try {
+          const resp = await fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            body: JSON.stringify(payload)
+          });
+
+          if (resp && resp.ok) {
+            let parsed = null;
+            try {
+              parsed = await resp.json();
+            } catch (e) {
+              parsed = { ok: true };
+            }
+
+            if (parsed && parsed.duplicate) {
+              statusMsg.innerHTML = `<span class="text-red-600 dark:text-red-400 font-semibold">Doublon signalé par le serveur :</span> ce CIN est déjà enregistré.`;
+              retryBtn.classList.add("hidden");
+              return;
+            }
+            if (parsed && parsed.ok === false) {
+              throw new Error(parsed.error || "Erreur Apps Script");
+            }
+
+            statusMsg.innerHTML = `<span class="text-emerald-700 dark:text-emerald-400 font-semibold">✓ Résultats enregistrés avec succès</span> dans votre feuille Google Sheets.`;
+            retryBtn.classList.add("hidden");
+            showToast("Résultats enregistrés avec succès.", "success");
+            return;
+          }
+
+          throw new Error(resp ? `HTTP ${resp.status}` : "Réponse invalide");
+        } catch (err) {
+          // Repli no-cors pour les Web Apps Google Apps Script
+          try {
+            await fetch(url, {
+              method: "POST",
+              mode: "no-cors",
+              headers: { "Content-Type": "text/plain;charset=utf-8" },
+              body: JSON.stringify(payload)
+            });
+            statusMsg.innerHTML = `<span class="text-emerald-700 dark:text-emerald-400 font-semibold">✓ Envoi effectué vers Google Apps Script</span> (mode <code>no-cors</code>). Vérifiez votre feuille Google Sheets ou téléchargez le CSV de secours.`;
+            retryBtn.classList.remove("hidden");
+            showToast("Résultats envoyés vers Google Apps Script.", "success");
+          } catch (noCorsErr) {
+            statusMsg.innerHTML = `<span class="text-red-700 dark:text-red-300 font-semibold">Échec de l’envoi :</span> ${escapeHtml(noCorsErr.message || err.message)}. Réessayez ou téléchargez le CSV.`;
+            retryBtn.classList.remove("hidden");
+          }
+        }
+      }
+
+      // Export CSV de secours
+      function downloadCsvBackup(payload) {
+        if (!payload) return;
+        const headers = [
+          "Date_Heure",
+          "CIN",
+          "Nom",
+          "Prenom",
+          "Date_Naissance",
+          "Sexe",
+          "Note_Sur_20",
+          "Temps_Utilise"
+        ];
+        for (let i = 1; i <= 20; i++) {
+          headers.push(`Q${i}_Question`, `Q${i}_Reponse`, `Q${i}_Note`, `Q${i}_EstCorrect`);
+        }
+
+        const row = [
+          payload.dateHeure,
+          payload.etudiant.cin,
+          payload.etudiant.nom,
+          payload.etudiant.prenom,
+          payload.etudiant.dateNaissance,
+          payload.etudiant.sexe,
+          payload.noteSur20,
+          payload.tempsUtilise
+        ];
+
+        for (let i = 0; i < 20; i++) {
+          const item = payload.reponsesDetaillees[i] || {};
+          row.push(item.question || "", item.reponseEtudiant || "", item.noteQuestion ?? 0, item.estCorrect ? "Oui" : "Non");
+        }
+
+        const esc = (v) => `"${String(v ?? "").replace(/"/g, '""')}"`;
+        const csv = "\uFEFF" + headers.map(esc).join(";") + "\n" + row.map(esc).join(";");
+        const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+        const linkUrl = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = linkUrl;
+        a.download = `Examen_M1_MITD_${payload.etudiant.cin}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(linkUrl);
+        showToast("CSV de secours téléchargé.", "success");
+      }
+
+      // Affichage de l'écran de remerciement sans note ni corrigé
+      function renderResultsView(payload) {
+        $("view-welcome").classList.add("hidden");
+        $("view-exam").classList.add("hidden");
+        $("view-results").classList.remove("hidden");
+        $("header-timer-badge").classList.add("hidden");
+        $("header-timer-badge").classList.remove("flex");
+
+        $("result-student-name").textContent = `${payload.etudiant.nom} ${payload.etudiant.prenom} (${payload.etudiant.sexe})`;
+        $("result-student-cin").textContent = payload.etudiant.cin;
+        $("result-submitted-at").textContent = payload.dateHeure;
+        $("result-time-used").textContent = payload.tempsUtilise;
+
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      // Démarrage de l'examen après contrôle CIN
+      async function handleStartExam(e) {
+        e.preventDefault();
+        hideLockBanner();
+
+        const cin = normalizeCin($("input-cin").value);
+        const nom = String($("input-nom").value || "").trim();
+        const prenom = String($("input-prenom").value || "").trim();
+        const dob = String($("input-dob").value || "").trim();
+        const sexeRadio = document.querySelector('input[name="sexe"]:checked');
+        const sexe = sexeRadio ? sexeRadio.value : "";
+        const pledge = $("input-pledge").checked;
+
+        if (!cin || !nom || !prenom || !dob || !sexe || !pledge) {
+          showToast("Veuillez remplir tous les champs obligatoires (CIN, Nom, Prénom, Date de naissance, Sexe) et cocher l’engagement.", "warning");
+          return;
+        }
+
+        if (getLocalLockedCins().includes(cin)) {
+          showLockBanner(`Le CIN ${cin} a déjà passé cet examen sur ce poste.`);
+          showToast("Double passation bloquée pour ce CIN.", "error");
+          return;
+        }
+
+        const btn = $("btn-start-exam");
+        const label = $("btn-start-label");
+        btn.disabled = true;
+        label.textContent = "Vérification du CIN…";
+
+        const check = await checkCinViaGet(cin);
+        if (check.alreadySubmitted) {
+          showLockBanner(`Le CIN ${cin} a déjà été enregistré pour cet examen.`);
+          label.textContent = "Vérifier le CIN & Démarrer l’Examen";
+          showToast("Ce CIN a déjà effectué l’examen.", "error");
+          return;
+        }
+
+        btn.disabled = false;
+        label.textContent = "Vérifier le CIN & Démarrer l’Examen";
+
+        state.student = { cin, nom, prenom, dob, sexe };
+        state.currentIndex = 0;
+        state.timerSeconds = 0;
+        state.evaluation = null;
+        state.lastPayload = null;
+        initDefaultAnswers();
+
+        $("exam-student-summary").textContent = `${nom} ${prenom} (${cin})`;
+        $("view-welcome").classList.add("hidden");
+        $("view-results").classList.add("hidden");
+        $("view-exam").classList.remove("hidden");
+
+        const timerBadge = $("header-timer-badge");
+        timerBadge.classList.remove("hidden");
+        timerBadge.classList.add("flex");
+        $("timer-display").textContent = "00:00";
+
+        if (state.timerInterval) clearInterval(state.timerInterval);
+        state.timerInterval = setInterval(() => {
+          state.timerSeconds += 1;
+          $("timer-display").textContent = formatSeconds(state.timerSeconds);
+        }, 1000);
+
+        renderCurrentQuestion();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      // Contrôle strict des 20 réponses avant d'ouvrir la confirmation
+      function openSubmitModal() {
+        if (!state.student) return;
+
+        const missing = QUESTIONS.filter((q) => !isQuestionAnswered(q));
+        if (missing.length > 0) {
+          const first = missing[0];
+          const idx = QUESTIONS.findIndex((item) => item.id === first.id);
+          if (idx >= 0) {
+            state.currentIndex = idx;
+            renderCurrentQuestion();
+          }
+          const msg = `Soumission impossible : il reste ${missing.length} question(s) sans réponse. Redirection vers la question ${first.id}.`;
+          showToast(msg, "error");
+          alert(msg);
+          return;
+        }
+
+        const flaggedQuestions = QUESTIONS.filter((q) => Boolean(state.reviewFlags[q.id]));
+        const flaggedWarning = flaggedQuestions.length > 0
+          ? `<div class="p-2.5 rounded-xl bg-amber-100/80 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-700 text-amber-900 dark:text-amber-200 font-semibold">
+               Attention : ${flaggedQuestions.length} question(s) reste(nt) marquée(s) pour revoir (Q${flaggedQuestions.map((q) => q.id).join(", Q")}).
+             </div>`
+          : `<div class="text-emerald-700 dark:text-emerald-300 font-medium">Aucune question marquée pour revoir.</div>`;
+
+        $("confirm-modal-recap").innerHTML = `
+          <div><strong>Candidat :</strong> ${escapeHtml(state.student.nom)} ${escapeHtml(state.student.prenom)} (${escapeHtml(state.student.cin)})</div>
+          <div><strong>Questions répondues :</strong> 20 / 20</div>
+          <div><strong>Temps écoulé :</strong> <span class="font-mono">${escapeHtml(formatSeconds(state.timerSeconds))}</span></div>
+          ${flaggedWarning}
+        `;
+
+        const modal = $("confirm-submit-modal");
+        modal.classList.remove("hidden");
+        modal.classList.add("flex");
+      }
+
+      function closeSubmitModal() {
+        const modal = $("confirm-submit-modal");
+        modal.classList.add("hidden");
+        modal.classList.remove("flex");
+      }
+
+      // Soumission finale
+      async function confirmAndSubmitExam() {
+        if (!state.student) return;
+
+        const missing = QUESTIONS.filter((q) => !isQuestionAnswered(q));
+        if (missing.length > 0) {
+          closeSubmitModal();
+          const first = missing[0];
+          const idx = QUESTIONS.findIndex((item) => item.id === first.id);
+          if (idx >= 0) {
+            state.currentIndex = idx;
+            renderCurrentQuestion();
+          }
+          const msg = `Toutes les 20 questions sont obligatoires (${missing.length} manquante(s)).`;
+          showToast(msg, "error");
+          alert(msg);
+          return;
+        }
+
+        closeSubmitModal();
+
+        if (state.timerInterval) {
+          clearInterval(state.timerInterval);
+          state.timerInterval = null;
+        }
+
+        lockCinLocally(state.student.cin);
+        state.submittedAt = new Date().toISOString();
+        const evaluation = evaluateExam();
+        const payload = buildSubmissionPayload(evaluation);
+
+        state.evaluation = evaluation;
+        state.lastPayload = payload;
+
+        renderResultsView(payload);
+        await sendPayloadToAppsScript(payload);
+      }
+
+      function resetToStartScreen() {
+        state.student = null;
+        state.currentIndex = 0;
+        state.timerSeconds = 0;
+        state.submittedAt = null;
+        state.evaluation = null;
+        state.lastPayload = null;
+        initDefaultAnswers();
+
+        if ($("student-form")) {
+          $("student-form").reset();
+        }
+        hideLockBanner();
+
+        $("view-results").classList.add("hidden");
+        $("view-exam").classList.add("hidden");
+        $("view-welcome").classList.remove("hidden");
+        $("header-timer-badge").classList.add("hidden");
+        $("header-timer-badge").classList.remove("flex");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      // Initialisation & événements
+      function initTheme() {
+        let saved = null;
+        try {
+          saved = localStorage.getItem(STORAGE_KEYS.THEME);
+        } catch (e) {}
+        const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+        document.documentElement.classList.toggle("dark", saved ? saved === "dark" : prefersDark);
+      }
+
+      function bindEvents() {
+        $("btn-toggle-theme").addEventListener("click", () => {
+          const isDark = document.documentElement.classList.toggle("dark");
+          try {
+            localStorage.setItem(STORAGE_KEYS.THEME, isDark ? "dark" : "light");
+          } catch (e) {}
+        });
+
+        $("student-form").addEventListener("submit", handleStartExam);
+
+        $("input-cin").addEventListener("blur", async () => {
+          const cin = normalizeCin($("input-cin").value);
+          if (!cin) {
+            hideLockBanner();
+            return;
+          }
+          if (getLocalLockedCins().includes(cin)) {
+            showLockBanner(`Le CIN ${cin} a déjà passé cet examen sur ce poste.`);
+            return;
+          }
+          const check = await checkCinViaGet(cin);
+          if (check.alreadySubmitted) {
+            showLockBanner(`Le CIN ${cin} est déjà enregistré pour cet examen.`);
+          } else {
+            hideLockBanner();
+          }
+        });
+
+        $("btn-prev-q").addEventListener("click", () => {
+          if (state.currentIndex > 0) {
+            state.currentIndex -= 1;
+            renderCurrentQuestion();
+          }
+        });
+
+        $("btn-next-q").addEventListener("click", () => {
+          if (state.currentIndex < QUESTIONS.length - 1) {
+            state.currentIndex += 1;
+            renderCurrentQuestion();
+          } else {
+            $("btn-submit-exam").scrollIntoView({ behavior: "smooth", block: "center" });
+            showToast("Dernière question atteinte. Cliquez sur « Soumettre l’Examen ».", "info");
+          }
+        });
+
+        $("btn-submit-exam").addEventListener("click", openSubmitModal);
+        $("btn-cancel-submit").addEventListener("click", closeSubmitModal);
+        $("btn-confirm-submit").addEventListener("click", confirmAndSubmitExam);
+
+        $("confirm-submit-modal").addEventListener("click", (e) => {
+          if (e.target === $("confirm-submit-modal")) closeSubmitModal();
+        });
+
+        $("btn-retry-sheet").addEventListener("click", async () => {
+          if (state.lastPayload) await sendPayloadToAppsScript(state.lastPayload);
+        });
+
+        $("btn-print-result").addEventListener("click", () => {
+          window.print();
+        });
+
+        $("btn-next-student").addEventListener("click", resetToStartScreen);
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        initTheme();
+        updateSheetStatusBadge();
+        initDefaultAnswers();
+        bindEvents();
+      });
+    })();
+  </script>
+</body>
+</html>
